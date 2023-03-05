@@ -8,6 +8,7 @@ class Product(models.Model):
     product_description = models.TextField()
     product_image = models.ImageField()
     product_quantity = models.IntegerField(default=1)
+    product_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.product_name

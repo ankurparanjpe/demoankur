@@ -18,3 +18,9 @@ def index(request):
     context = {'products': products}
     return render(request=request, template_name='products.html', context=context)
     # return HttpResponse("<p>Index page!</p>")
+
+
+def product_update(request, product_id):
+    print("@@@@@@@@@@@@@@@@@@@@", product_id)
+    return HttpResponse("<p>Product description page!</p>")
+    
