@@ -9,7 +9,7 @@ def index(request):
 #     'SELECT * FROM product',
 # ).scalar()
     # Product.objects.raw('SELECT * FROM product'):
-    Product.objects.filter(id=5).last()
+    # Product.objects.filter(id=5).last()
     # Product.objects.get(id=5)
 
 
@@ -21,6 +21,17 @@ def index(request):
 
 
 def product_update(request, product_id):
-    print("@@@@@@@@@@@@@@@@@@@@", product_id)
-    return HttpResponse("<p>Product description page!</p>")
+    product = Product.objects.filter(id=product_id).first()
+
+    if request.method == "POST":
+        product_name = request.POST.get('product_name')
+        product_description = request.POST.get('product_description')
+        product_quantity = request.POST.get('product_quantity')
+        product_price = request.POST.get('product_price')
+        product_active = request.POST.get('product_active')
+
+        print("############", product_name)
+
+    context = {"product": product}
+    return render(request, 'product_update.html', context)
     
