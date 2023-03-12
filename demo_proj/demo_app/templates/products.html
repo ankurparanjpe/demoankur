@@ -5,12 +5,16 @@
     {% for product in products %}
     
     <div class="card" style="width: 18rem;">
-        <img class="card-img-top" src="{{product.product_image.url}}" alt="Card image cap">
+      {% if product.product_image %}
+      <img class="card-img-top" src="{{product.product_image.url}}" alt="Card image cap">
+      {% endif %}
         <div class="card-body">
           <h5 class="card-title">{{product.product_name}}</h5>
           <p class="card-text">{{product.product_description}}</p>
           <p class="card-text">{{product.product_price}}</p>
           <a href="/product/{{product.id}}" class="btn btn-primary">Edit</a>
+          <a href="/product_delete/{{product.id}}" class="btn btn-danger">Delete</a>
+
         </div>
     </div>
 
