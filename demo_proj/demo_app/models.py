@@ -6,7 +6,7 @@ class Product(models.Model):
     product_name = models.CharField(max_length=100)
     product_price = models.FloatField()
     product_description = models.TextField()
-    product_image = models.ImageField()
+    product_image = models.ImageField(upload_to='product')
     product_quantity = models.IntegerField(default=1)
     product_active = models.BooleanField(default=True)
 

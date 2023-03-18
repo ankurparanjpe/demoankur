@@ -2,7 +2,7 @@
 
 {% block content %}
 <h1 class="message">{{message}}</h1>
-<form method="POST" action="{% url 'product_update' product.id %}">
+<form method="POST" class ='demo-background' enctype="multipart/form-data" action="{% url 'product_update' product.id %}">
   {% csrf_token %}
   <div class="form-row">
     <div class="form-group col-md-6">
@@ -30,8 +30,11 @@
     <div>
       <img src="{{product.product_image.url}}">
     </div>
-    <label class="form-label" for="customFile">Default file input example</label>
-    <input type="file" class="form-control" id="customFile" />
+
+    <div class="form-group">
+      <label class="form-label" for="image">Default file input example</label>
+      <input type="file" class="form-control" id="image" name="image"/>    
+    </div>    
   </div>
   <div class="form-group">
     <div class="form-check">
