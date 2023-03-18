@@ -47,7 +47,7 @@ def product_update(request, product_id):
         else:
             product_obj.product_active = False
         product_obj.save()
-        message = "Successfully updated"
+        message = "Successfully updated product"
     context = {"product": product, "message": message}
     return render(request, 'product_update.html', context)
 
