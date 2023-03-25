@@ -1,23 +1,63 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h1>This is product page</h1>
-    {% for product in products %}
-    
-    <div class="card" style="width: 18rem;">
-      {% if product.product_image %}
-      <img class="card-img-top" src="{{product.product_image.url}}" alt="Card image cap">
-      {% endif %}
-        <div class="card-body">
-          <h5 class="card-title">{{product.product_name}}</h5>
-          <p class="card-text">{{product.product_description}}</p>
-          <p class="card-text">{{product.product_price}}</p>
-          <a href="/product/{{product.id}}" class="btn btn-primary">Edit</a>
-          <a href="/product_delete/{{product.id}}" class="btn btn-danger">Delete</a>
+<h1>This is product page</h1>
+{% for product in products %}
 
-        </div>
+<div class="card" style="width: 18rem;">
+  {% if product.product_image %}
+  <img class="card-img-top" src="{{product.product_image.url}}" alt="Card image cap">
+  {% endif %}
+  <div class="card-body">
+    <h5 class="card-title">{{product.product_name}}</h5>
+    <p class="card-text">{{product.product_description}}</p>
+    <p class="card-text">{{product.product_price}}</p>
+
+    <p hidden name="product" id="product">{{product.id}}</p>
+    <p hidden name="user" id="user">{{user.id}}</p>
+
+    <a href="/product/{{product.id}}" class="btn btn-primary">Edit</a>
+    <a href="/product_delete/{{product.id}}" class="btn btn-danger">Delete</a>
+    <a class="btn btn-primary" onclick="addtocart();">Add to cart</a>
+
+    <div class="mb-3">
+      <label for="quantity" class="form-label">Quantity</label>
+      <input type="number" class="form-control" id="quantity" name="quantity" aria-describedby="quantity" value="1">
     </div>
 
-    {% endfor %}
+  </div>
 </div>
+
+{% endfor %}
+</div>
+<script>
+
+  function addtocart() {
+    console.log('adsajsd')
+    user = document.getElementById('user')
+    product = document.getElementById('product')
+
+    $.ajax({
+      type: "POST", //GET or POST or PUT or DELETE verb 
+      url: "http://127.0.0.1:8000/add_to_cart/", // Location of the service 
+      data: JSON.stringify({
+        'test': 'test',
+        'user': user,
+        'product': product
+      }), //Data sent to server
+      contentType: "application/json", // content type sent to server 
+      dataType: "json", //Expected data format from server 
+      processdata: true,  //True or False 
+
+      success: function (json) { //On Successfull service call 
+        //shell.loaded(); 
+        // alert("cross domain ajax success full.");
+
+        var result = json.id;
+        alert("result===" + result);
+        // $("#dvAjax").html(result);
+      },
+    });
+  }
+</script>
 {% endblock %}

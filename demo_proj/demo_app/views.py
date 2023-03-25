@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
-from .models import Product
+from .models import Product,Address, Profile, CartDetail, OrderDetail
 from django.views.decorators.csrf import csrf_exempt
 from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login, logout
@@ -94,8 +94,6 @@ def user_login(request):
                 return redirect('/')
             else:
                 message = "password is incorrect"
-
-
     context = {'message': message}
     return render(request, 'login.html', context)
 
@@ -106,8 +104,21 @@ def registration(request):
         username = request.POST.get('username')
         password = request.POST.get('passwordtext')
         email = request.POST.get('email')
+        full_name = request.POST.get('full_name')
+        profile_image = request.POST.get('profile_image')
+        contact_number = request.POST.get('contact_number')
+        address = request.POST.get('address')
+        date_of_birth = request.POST.get('date_of_birth')
 
+        line1 = request.POST.get('line1')
+        city = request.POST.get('city')
+        state = request.POST.get('state')
+        country = request.POST.get('country')
+        zip_code = request.POST.get('zip_code')
+
+        address = Address.objects.create(line1=line1, city=city, state=state, country=country, zip_code=zip_code)
         user = User.objects.create_user(username=username, password=password, email=email)
+        Profile.objects.create(user=user, full_name= full_name, profile_image= profile_image, contact_number=contact_number, address=address, date_of_birth=date_of_birth)
         if user:
             message = 'Successfully created user'
             return redirect('/')
@@ -119,3 +130,10 @@ def registration(request):
 def user_logout(request):
     logout(request)
     return redirect("/")
+
+@csrf_exempt
+def add_to_cart(request):
+    if request.method == "POST":
+        quantity = request.POST.get('quantity')
+        product = request.POST.get('product')
+        user = request.POST.get('user')
