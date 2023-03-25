@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+  .toast {
+    color: green;
+  }
+</style>
+<h1>Cart Detail</h1>
+<button class="btn btn-primary btn-md" onclick="placeorder()">Buy Now</button>
+<div class="toast align-items-center" role="alert" aria-live="assertive" aria-atomic="true" data-delay="5000">
+  <div class="toast-body">
+    Successfully Added. Go to <a href="{% url 'order_details' %}">Order page</a>
+  </div>
+</div>
+{% for product in products %}
+
+<div class="card" style="width: 18rem;">
+  {% if product.product.product_image %}
+  <img class="card-img-top" src="{{product.product.product_image.url}}" alt="Card image cap">
+  {% endif %}
+  <div class="card-body">
+    <h5 class="card-title">{{product.product_name}}</h5>
+    <p class="card-text">{{product.product_description}}</p>
+    <p class="card-text">{{product.product_price}}</p>
+
+    <p hidden name="product" id="product" value="{{product.id}}">{{product.id}}</p>
+    <p hidden name="user" id="user" value="{{user.id}}">{{user.id}}</p>
+
+    <a href="/product_delete/{{product.id}}" class="btn btn-danger">Delete</a>
+
+    <div class="mb-3">
+      <label for="quantity" class="form-label">Quantity</label>
+      <input type="number" class="form-control" id="quantity" name="quantity" aria-describedby="quantity"
+        value="{{product.quantity}}">
+    </div>
+
+  </div>
+</div>
+
+{% endfor %}
+</div>
+<script>
+
+  function placeorder() {
+
+    console.log('adsajsd')
+    fetch("{% url 'place_order' %}")
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log(data);
+        // Process the data returned by the API
+      })
+      .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+      });
+
+  }
+</script>
+{% endblock %}

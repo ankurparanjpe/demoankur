@@ -1,7 +1,17 @@
 {% extends 'base.html' %}
 
 {% block content %}
+<style>
+  .toast {
+    color: green;
+}
+</style>
 <h1>This is product page</h1>
+<div class="toast align-items-center" role="alert" aria-live="assertive" aria-atomic="true" data-delay="5000">
+  <div class="toast-body">
+    Successfully Added
+  </div>
+</div>
 {% for product in products %}
 
 <div class="card" style="width: 18rem;">
@@ -10,11 +20,11 @@
   {% endif %}
   <div class="card-body">
     <h5 class="card-title">{{product.product_name}}</h5>
-    <p class="card-text">{{product.product_description}}</p>
-    <p class="card-text">{{product.product_price}}</p>
+    <p class="card-text" >{{product.product_description}}</p>
+    <p class="card-text" >{{product.product_price}}</p>
 
-    <p hidden name="product" id="product">{{product.id}}</p>
-    <p hidden name="user" id="user">{{user.id}}</p>
+    <p hidden name="product" id="product" value="{{product.id}}">{{product.id}}</p>
+    <p hidden name="user" id="user" value="{{user.id}}">{{user.id}}</p>
 
     <a href="/product/{{product.id}}" class="btn btn-primary">Edit</a>
     <a href="/product_delete/{{product.id}}" class="btn btn-danger">Delete</a>
@@ -33,29 +43,23 @@
 <script>
 
   function addtocart() {
-    console.log('adsajsd')
-    user = document.getElementById('user')
-    product = document.getElementById('product')
+    user = document.getElementById('user').textContent
+    product = document.getElementById('product').textContent
+    quantity = document.getElementById('quantity').value
+
+    console.log('adsajsd', user, product)
 
     $.ajax({
       type: "POST", //GET or POST or PUT or DELETE verb 
-      url: "http://127.0.0.1:8000/add_to_cart/", // Location of the service 
+      url: "{% url 'add_to_cart' %}", // Location of the service 
       data: JSON.stringify({
         'test': 'test',
         'user': user,
-        'product': product
-      }), //Data sent to server
-      contentType: "application/json", // content type sent to server 
-      dataType: "json", //Expected data format from server 
-      processdata: true,  //True or False 
-
+        'product': product,
+        'quantity': quantity
+      }), 
       success: function (json) { //On Successfull service call 
-        //shell.loaded(); 
-        // alert("cross domain ajax success full.");
-
-        var result = json.id;
-        alert("result===" + result);
-        // $("#dvAjax").html(result);
+        $('.toast').toast('show');
       },
     });
   }

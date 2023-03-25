@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Order Detail</h1>
+<div>
+  {% for order in orders %}
+  <h2>Order Number: {{ order.order_number }}</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Product Name</th>
+        <th>Quantity</th>
+        <th>Price</th>
+        <th>Status</th>
+
+      </tr>
+    </thead>
+    <tbody>
+      {% for product in order.products %}
+        <tr>
+          <td>{{ product.name }}</td>
+          <td>{{ product.quantity }}</td>
+          <td>{{ product.price }}</td>
+          <td>{{ product.status }}</td>
+
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <hr>
+{% endfor %}
+
+</div>
+<script>
+
+  function placeorder() {
+
+    console.log('adsajsd')
+    fetch("{% url 'place_order' %}")
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log(data);
+        // Process the data returned by the API
+      })
+      .catch(error => {
+        console.error('There was a problem with the fetch operation:', error);
+      });
+
+  }
+</script>
+{% endblock %}

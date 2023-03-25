@@ -6,6 +6,9 @@ from django.shortcuts import redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
+import json
+from django.shortcuts import get_object_or_404
+import time
 
 # Create your views here.
 def index(request):
@@ -80,6 +83,7 @@ def product_delete(request, product_id):
 def user_login(request):
     message = ''
     if request.method == "POST":
+        next_url = request.POST.get('next')
         username = request.POST.get('username')
         password = request.POST.get('passwordtext')
 
@@ -91,7 +95,7 @@ def user_login(request):
             is_user = authenticate(request, username=username, password=password)
             if is_user:
                 login(request, user)
-                return redirect('/')
+                return redirect(next_url)
             else:
                 message = "password is incorrect"
     context = {'message': message}
@@ -133,7 +137,59 @@ def user_logout(request):
 
 @csrf_exempt
 def add_to_cart(request):
-    if request.method == "POST":
-        quantity = request.POST.get('quantity')
-        product = request.POST.get('product')
-        user = request.POST.get('user')
+    try:
+        if request.method == "POST":
+            data = request.body.decode('utf-8')
+            data = json.loads(data)
+            quantity = data.get('quantity')
+            product_id = data.get('product')
+            product = get_object_or_404(Product, id=product_id)
+            user_id = data.get('user')
+            user = get_object_or_404(User, id=user_id)
+            
+            cart_product = CartDetail.objects.filter(product=product)
+            if cart_product:
+                quantity = int(quantity) + int(cart_product.quantity)
+                CartDetail.objects.update(quantity=quantity)
+            else:
+                CartDetail.objects.create(product=product, user=user, quantity=quantity)
+            return JsonResponse({'message': 'Successfully Added in cart'}, safe=False, status=200)
+    except Exception as e:
+        return JsonResponse({'message': f"Failed {e}"},safe=False, status=500)
+    
+def cart_detail(request):
+    user_id = request.user.id
+    products = CartDetail.objects.filter(user=user_id)
+    context = {"products": products}
+    return render(request, 'cart.html', context)
+
+def place_order(request):
+    user_id = request.user.id
+    products = CartDetail.objects.filter(user=user_id)
+    order_number = int(time.time())
+    for p in products:
+        product = p.product
+        user = p.user
+        quantity = p.quantity
+        total_price = 0
+        order_status = "order place"
+        OrderDetail.objects.create(product=product, user=user, quantity=quantity, total_price=total_price, order_status=order_status, order_number=order_number)
+        CartDetail.objects.filter(product=product).delete()
+    return JsonResponse({'message': 'Successfully Placed the order.'})
+
+def order_details(request):
+    user_id = request.user.id
+    order_details = OrderDetail.objects.filter(user=user_id)
+    orders_list = []
+    for order in order_details:
+        products = OrderDetail.objects.filter(order_number=order.order_number)
+        order_products = []
+        for product in products:
+            order_products.append({'name': product.product.product_name, 
+                                   'quantity': product.quantity, 
+                                   'price': product.total_price,
+                                   "status": product.order_status})
+        orders_list.append({'order_number': order.order_number, 'products': order_products})
+
+    context = {"orders": orders_list}
+    return render(request, 'order_details.html', context)
