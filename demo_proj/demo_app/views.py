@@ -9,6 +9,8 @@ from django.contrib.auth.decorators import login_required
 import json
 from django.shortcuts import get_object_or_404
 import time
+from django.template.response import TemplateResponse
+from django.views import View
 
 # Create your views here.
 def index(request):
@@ -163,6 +165,24 @@ def cart_detail(request):
     context = {"products": products}
     return render(request, 'cart.html', context)
 
+# @login_required
+# class CartDetailView(View):
+#     def get(self, request):
+#         user_id = request.user.id
+#         products = CartDetail.objects.filter(user=user_id)
+#         context = {"products": products}
+#         return render(request, 'cart.html', context)
+
+#     def post(self, request):
+#         # Handle POST request to add product to cart
+#         # ...
+#         return redirect('cart_detail')
+
+#     def delete(self, request):
+#         # Handle DELETE request to remove product from cart
+#         # ...
+#         return redirect('cart_detail')
+    
 def place_order(request):
     user_id = request.user.id
     products = CartDetail.objects.filter(user=user_id)
@@ -180,16 +200,20 @@ def place_order(request):
 def order_details(request):
     user_id = request.user.id
     order_details = OrderDetail.objects.filter(user=user_id)
-    orders_list = []
+    orders_dict = {}
     for order in order_details:
-        products = OrderDetail.objects.filter(order_number=order.order_number)
-        order_products = []
-        for product in products:
-            order_products.append({'name': product.product.product_name, 
-                                   'quantity': product.quantity, 
-                                   'price': product.total_price,
-                                   "status": product.order_status})
-        orders_list.append({'order_number': order.order_number, 'products': order_products})
-
+        if order.order_number in orders_dict:
+            orders_dict[order.order_number]['products'].append({'name': order.product.product_name,
+                                                                 'quantity': order.quantity,
+                                                                 'price': order.total_price,
+                                                                 'status': order.order_status})
+        else:
+            orders_dict[order.order_number] = {'order_number': order.order_number,
+                                                'products': [{'name': order.product.product_name,
+                                                              'quantity': order.quantity,
+                                                              'price': order.total_price,
+                                                              'status': order.order_status}]}
+    orders_list = list(orders_dict.values())
     context = {"orders": orders_list}
+    # # return TemplateResponse(request, 'order_details.html', context)
     return render(request, 'order_details.html', context)
